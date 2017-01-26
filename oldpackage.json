@@ -4,9 +4,10 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "start": "node index"
+    "start": "concurrently \"node index\" \"npm run bundle\"",
+    "bundle": "webpack"
   },
-  "heroku-postbuild": "webpack -p --config ./webpack.config.js --progress",
+  "heroku-postbuild": "webpack -p --config ./webpack.prod.config.js --progress",
   "author": "",
   "license": "ISC",
   "dependencies": {
