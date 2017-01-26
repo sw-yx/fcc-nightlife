@@ -3,10 +3,7 @@
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
-  "scripts": {
-    "start": "concurrently \"node index\" \"npm run bundle\"",
-    "bundle": "webpack"
-  },
+
   "author": "",
   "license": "ISC",
   "dependencies": {
