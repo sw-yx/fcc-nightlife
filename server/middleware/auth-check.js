@@ -7,6 +7,8 @@ const config = require('../../config');
  *  The Auth Checker middleware function.
  */
 module.exports = (req, res, next) => {
+  //exception for yelp api
+  if (req._parsedOriginalUrl.pathname== "/api/yelp") {return next()}
   if (!req.headers.authorization) {
     return res.status(401).end();
   }

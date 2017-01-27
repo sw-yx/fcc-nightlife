@@ -2,9 +2,14 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const passport = require('passport');
 const config = require('./config');
+require('dotenv').config()
 
 // connect to the database and load models
-require('./server/models').connect(config.dbUri);
+const dburi = (process.env.NODE_ENV === 'production') ? config.dbUriH : config.dbUriL
+
+require('./server/models').connect(dburi);
+
+
 
 const app = express();
 // tell the app to look for static files in these directories
