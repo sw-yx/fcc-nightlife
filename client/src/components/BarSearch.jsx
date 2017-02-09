@@ -6,20 +6,16 @@ import Auth from '../modules/Auth';
 import _ from 'lodash';
 
 
-const BarSearchResult = ({ searchbartext, barList }) => {
+// const BarSearchResult = ({ selectedBars, searchbartext, barList, functionPickBar}) => {
+const BarSearchResult = ({ searchbartext, barList, functionPickBar}) => {
   
   // console.log('BarSearchResult', barList)
   if (!barList) {
     return (<p>Loading</p>)
   } else {
+    // console.log('selectedBars',selectedBars)
+    // console.log('barsearchresult',barList)
     var componentmap = barList.map((x, i) => (
-      // <CardText key={i} style={{ fontSize: '16px', color: 'green' }}>
-      //   {x.name} |
-      //   {x.rating} |
-      //   {x.reviews} |
-      //   {x.url} |
-      //   {x.img}
-      // </CardText>
       <TableRow key={i}>
         <TableRowColumn>
           <a href={x.url} target="_blank">{x.name}</a> <br/>
@@ -29,12 +25,14 @@ const BarSearchResult = ({ searchbartext, barList }) => {
         <TableRowColumn><img src={x.img} alt={x.id} height="64px" /></TableRowColumn>
       </TableRow>
     ))
+    // <TableHeader displaySelectAll={false}>
+    // <TableBody displayRowCheckbox={false}>
     return (<Card className="container">
       <CardTitle
         title="Bar List"
         subtitle={"List of " + searchbartext + " Bars."}
       />
-      <Table>
+      <Table onRowSelection={(selectedRows) => {functionPickBar(selectedRows)}}>
         <TableHeader displaySelectAll={false}>
           <TableRow>
             <TableHeaderColumn>Name <br/> Address </TableHeaderColumn>
@@ -63,10 +61,11 @@ class BarSearch extends React.Component {
    */
   constructor(props) {
     super(props);
-
+    // console.log('barsearch constructor', props);
     this.state = {
       barList: [],
-      searchbartext: ""
+      searchbartext: "",
+      // selectedBars: props.selectedBars
     };
   }
 
@@ -101,20 +100,54 @@ class BarSearch extends React.Component {
   //   console.log('componentDidMount')
   // }
 
+  pickBar(selectedRows){
+    const bar = this.state.barList[selectedRows[0]]
+    console.log('selectedRows',selectedRows)
+    // console.log('selectedRows[0]',selectedRows[0])
+    // console.log('barid',barid)
+    const xhr = new XMLHttpRequest();
+    const em = Auth.getEmail()
+    xhr.open('get', '/api/addBarToUser'
+      +(em ? "?uid=" + em : "")
+      +(bar.id ? "&barid=" + bar.id : "")
+      +(bar.img ? "&barimg=" + bar.img : "")
+      +(bar.name ? "&barname=" + bar.name : "")
+      +(bar.url ? "&barurl=" + bar.url : "")
+      +(bar.loc ? "&barloc=" + bar.loc : "")
+      );
+    xhr.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
+    // set the authorization HTTP header
+    xhr.setRequestHeader('Authorization', `bearer ${Auth.getToken()}`);
+    xhr.responseType = 'json';
+    xhr.addEventListener('load', () => {
+      if (xhr.status === 200) {
+        console.log('pickBar',xhr.response.message)
+        this.props.updateSecretData(xhr.response.message)
+        this.props.updateList()
+        // this.setState({
+        //   secretData: xhr.response.message
+        // });
+      }
+    });
+    xhr.send();
+  }
+
   /**
    * Render the component.
    */
   render() {
     // const delayedText = _.debounce((term) => {this.searchText(term).bind(this)},300);
+    // console.log('this.searchText',this.searchText)
+    // console.log('this.pickBar',this.pickBar)
     const delayedText = this.searchText.bind(this);
     return (<div>
       <TextField
         hintText="Hint Text"
-        floatingLabelText="Floating Label Text"
+        floatingLabelText="Enter your location"
         value={this.state.searchbartext}
         onChange={delayedText}
       /><br />
-      <BarSearchResult searchbartext={this.state.searchbartext} barList={this.state.barList} />
+      <BarSearchResult searchbartext={this.state.searchbartext} barList={this.state.barList} functionPickBar={this.pickBar.bind(this)} />
       </div>);
   }
 

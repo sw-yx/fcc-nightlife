@@ -8,7 +8,16 @@ const UserSchema = new mongoose.Schema({
     index: { unique: true }
   },
   password: String,
-  name: String
+  name: String,
+  // barIDs: [String] //id's that the user has clicked on
+  barIDs: [{
+    barid:  String,
+    img:  String,
+    name:  String,
+    url:  String,
+    loc:  String,
+  }] // {barid: req.query.barid, img: req.query.barimg, name: req.query.barname, url: req.query.barurl}
+  
 });
 
 
